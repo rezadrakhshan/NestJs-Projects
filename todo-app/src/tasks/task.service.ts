@@ -82,4 +82,33 @@ export class TasksService {
       );
     }
   }
+  async removeTask(id) {
+    try {
+      const target = await this.taskModel.findByIdAndDelete(id, { new: true });
+      if (!target) {
+        throw new HttpException(
+          {
+            status: HttpStatus.NOT_FOUND,
+            error: 'Task does not exists',
+          },
+          HttpStatus.NOT_FOUND,
+          {
+            cause: error,
+          },
+        );
+      }
+      return { message: 'Task was remove' };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Server cant create task',
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: error,
+        },
+      );
+    }
+  }
 }

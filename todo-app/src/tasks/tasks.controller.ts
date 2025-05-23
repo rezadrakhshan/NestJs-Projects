@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Delete,
   Body,
   Req,
   UsePipes,
@@ -31,5 +32,9 @@ export class TasksController {
   @UsePipes(ValidationPipe)
   async updateTask(@Param('id') id: string, @Body() data: UpdateTaskDto) {
     return this.tasksService.updateTask(id, data);
+  }
+  @Delete(':id')
+  async removeTask(@Param('id') id: string) {
+    return this.tasksService.removeTask(id);
   }
 }
