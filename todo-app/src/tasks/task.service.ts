@@ -2,16 +2,16 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Task } from './schemas/tasks.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import { pick } from 'lodash';
+import { CreateTaskdata } from 'src/tasks/interfaces/create-task-data.interface';
 
 @Injectable()
 export class TasksService {
-  constructor(
-    @InjectModel(Task.name) private taskModel: Model<Task>,
-  ) {}
+  constructor(@InjectModel(Task.name) private taskModel: Model<Task>) {}
 
   async findAll(req) {
     try {
-      const tasks = await this.taskModel.find({ userID: req.sub });
+      const tasks = await this.taskModel.find({ userID: req.user.sub });
       return {
         message: 'All task is here',
         data: tasks,
@@ -21,6 +21,25 @@ export class TasksService {
         {
           status: HttpStatus.FORBIDDEN,
           error: 'Server can not sent tasks',
+        },
+        HttpStatus.FORBIDDEN,
+        {
+          cause: error,
+        },
+      );
+    }
+  }
+  async createTask(req, data) {
+    try {
+      const value: CreateTaskdata = pick(data, ['text']);
+      value.userID = req.user.sub;
+      const newTask = await new this.taskModel(value);
+      return await newTask.save();
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error: 'Server cant create task',
         },
         HttpStatus.FORBIDDEN,
         {
