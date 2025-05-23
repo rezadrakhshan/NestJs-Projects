@@ -8,7 +8,7 @@ import { ConfigModule } from '@nestjs/config';
     AuthModule,
     MongooseModule.forRootAsync({
       useFactory: () => ({
-        uri: process.env["DATABASE_URL"],
+        uri: process.env['DATABASE_URL'],
       }),
     }),
     ConfigModule.forRoot(),
