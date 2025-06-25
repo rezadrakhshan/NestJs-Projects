@@ -1,4 +1,9 @@
-import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { User } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -42,8 +47,36 @@ export class AuthService {
         },
         error.response.statusCode,
         {
-          cause: true,
+          cause: error,
         },
+      );
+    }
+  }
+  async login(data): Promise<{ access_token: string }> {
+    try {
+      const value = pick(data, ['email', 'username', 'password']);
+      const user = await this.userModel.findOne({
+        $or: [{ email: value.email }, { username: value.username }],
+      });
+      if (!user) {
+        throw new UnauthorizedException('Invalid username or email');
+      }
+      const isMatch = await bcrypt.compare(value.password, user.password);
+      if (!isMatch) {
+        throw new BadRequestException('Incorecct password');
+      }
+      const payload = { sub: user.id };
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: error.response.statusCode,
+          error: error.response,
+        },
+        error.response.statusCode,
+        { cause: error },
       );
     }
   }
