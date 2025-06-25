@@ -5,13 +5,13 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     MongooseModule.forRootAsync({
       useFactory: () => ({
         uri: process.env['DATABASE_URL'],
       }),
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
     }),
     AuthModule,
   ],
