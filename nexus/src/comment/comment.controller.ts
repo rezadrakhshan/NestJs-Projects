@@ -1,6 +1,8 @@
 import {
   Controller,
   Post,
+  Get,
+  Param,
   Body,
   UsePipes,
   ValidationPipe,
@@ -12,6 +14,11 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 @Controller('comment')
 export class CommentController {
   constructor(private commentService: CommentService) {}
+
+  @Get(':id')
+  async getAllCommentOfPost(@Param('id') id: string) {
+    return this.commentService.getAllCommentOfPost(id);
+  }
 
   @Post()
   @UsePipes(new ValidationPipe())
