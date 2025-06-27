@@ -66,4 +66,19 @@ export class CommentService {
     await comment.save();
     return comment;
   }
+
+  async deleteComment(id, req) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+    const comment = await this.commentModel.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Comment does not exists');
+    }
+    if (comment.userID != req.user.sub) {
+      throw new NotAcceptableException('Access denied');
+    }
+    await this.commentModel.findByIdAndDelete(id);
+    return { msg: 'Comment was removed' };
+  }
 }

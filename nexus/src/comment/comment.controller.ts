@@ -3,6 +3,7 @@ import {
   Post,
   Get,
   Put,
+  Delete,
   Param,
   Body,
   UsePipes,
@@ -37,5 +38,10 @@ export class CommentController {
     @Req() req: Request,
   ) {
     return this.commentService.updateComment(id, data, req);
+  }
+
+  @Delete(':id')
+  async deleteComment(@Param('id') id: string, @Req() req: Request) {
+    return this.commentService.deleteComment(id, req);
   }
 }
