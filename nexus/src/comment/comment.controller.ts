@@ -4,6 +4,7 @@ import {
   Body,
   UsePipes,
   ValidationPipe,
+  Req,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -14,5 +15,7 @@ export class CommentController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  async createComment(@Body() data:CreateCommentDto) {}
+  async createComment(@Body() data: CreateCommentDto, @Req() req) {
+    return this.commentService.createComment(data, req);
+  }
 }

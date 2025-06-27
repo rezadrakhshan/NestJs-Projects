@@ -6,9 +6,6 @@ export class CreateCommentDto {
   content: string;
   @IsNotEmpty()
   @IsMongoId()
-  userID: string;
-  @IsNotEmpty()
-  @IsMongoId()
   postID: string;
   @IsOptional()
   @IsMongoId()
