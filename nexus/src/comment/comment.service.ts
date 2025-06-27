@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  NotAcceptableException,
+} from '@nestjs/common';
 import { Comment } from './schemas/comment.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -19,7 +24,7 @@ export class CommentService {
     }
     const post = await this.postModel.findOne({ _id: postID });
     if (!post) {
-      throw new BadRequestException('Post does not exists');
+      throw new NotFoundException('Post does not exists');
     }
     const result = await this.commentModel.find({ postID: postID });
     return result;
@@ -43,5 +48,22 @@ export class CommentService {
     const result = await new this.commentModel(value);
     await result.save();
     return result;
+  }
+
+  async updateComment(id, data, req) {
+    const value = pick(data, ['content']);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+    const comment = await this.commentModel.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Comment does not exists');
+    }
+    if (comment.userID != req.user.sub) {
+      throw new NotAcceptableException('Access denied');
+    }
+    comment.content = value.content;
+    await comment.save();
+    return comment;
   }
 }
