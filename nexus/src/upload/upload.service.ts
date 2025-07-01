@@ -33,7 +33,7 @@ export class UploadService {
     await this.s3Client.send(command);
 
     return {
-      url: `${this.configService.get('LIARA_ENDPOINT')}/${file.originalname}`,
+      url: `${this.configService.get('LIARA_ENDPOINT')}/${key}`
     };
   }
 }

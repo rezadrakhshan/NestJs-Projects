@@ -1,16 +1,18 @@
 import { Schema, SchemaFactory, Prop } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose from 'mongoose';
 
-export type PostDocument = HydratedDocument<Post>;
+export type PostDocument = mongoose.HydratedDocument<Post>;
 
 @Schema({ timestamps: true })
 export class Post {
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  userID: mongoose.Types.ObjectId;
   @Prop({ required: true })
   content: string;
   @Prop({ required: true })
-  imageUrl: string;
+  imagesUrl: string[];
   @Prop({ default: 0 })
-  lokeCount: number;
+  likeCount: number;
 }
 
 export const postSchema = SchemaFactory.createForClass(Post);
