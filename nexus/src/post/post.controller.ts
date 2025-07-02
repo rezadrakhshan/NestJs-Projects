@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Delete,
+  Get,
   Param,
   UsePipes,
   ValidationPipe,
@@ -33,5 +34,19 @@ export class PostController {
   @Delete(':id')
   async removePost(@Param('id') id: string, @Req() req: Request) {
     return this.postService.removePost(id, req);
+  }
+
+  @Get()
+  async getAllPost() {
+    return this.postService.getAllPost();
+  }
+
+  @Get('user')
+  async getUserPosts(@Req() req: Request) {
+    return this.postService.getUserPosts(req);
+  }
+  @Get(':id')
+  async postDetail(@Param('id') id: string) {
+    return this.postService.postDetail(id);
   }
 }

@@ -1,5 +1,6 @@
 import {
   BadGatewayException,
+  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import { Model } from 'mongoose';
 import { UploadService } from 'src/upload/upload.service';
 import { pick } from 'lodash';
 import mongoose from 'mongoose';
+import { retry } from 'rxjs';
 
 @Injectable()
 export class PostService {
@@ -31,7 +33,7 @@ export class PostService {
     return result;
   }
 
-  async removePost(id: string, req) {
+  async removePost(id: string, req): Promise<{ msg: string }> {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadGatewayException('Invalid ID');
     const post: any = await this.postModel.findOne({
@@ -42,5 +44,23 @@ export class PostService {
     for (const url of post.imagesUrl) await this.uploadService.deleteFile(url);
     await this.postModel.findByIdAndDelete(id);
     return { msg: 'Post deleted succesfully' };
+  }
+
+  async getAllPost() {
+    const data = await this.postModel.find();
+    return data;
+  }
+
+  async getUserPosts(req) {
+    const data = await this.postModel.find({ userID: req.user.sub });
+    return data;
+  }
+
+  async postDetail(id) {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      throw new BadRequestException('Invalid Id');
+    const target = await this.postModel.findById(id).populate('userID',"username firstName lastName");
+    if (!target) throw new NotFoundException('Post does not exists');
+    return target;
   }
 }
