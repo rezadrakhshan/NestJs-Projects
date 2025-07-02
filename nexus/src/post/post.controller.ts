@@ -1,6 +1,8 @@
 import {
   Controller,
   Post,
+  Delete,
+  Param,
   UsePipes,
   ValidationPipe,
   Body,
@@ -26,5 +28,10 @@ export class PostController {
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     return this.postService.createPost(data, req, files);
+  }
+
+  @Delete(':id')
+  async removePost(@Param('id') id: string, @Req() req: Request) {
+    return this.postService.removePost(id, req);
   }
 }

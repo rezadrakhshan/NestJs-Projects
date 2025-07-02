@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
 
@@ -33,7 +37,26 @@ export class UploadService {
     await this.s3Client.send(command);
 
     return {
-      url: `${this.configService.get('LIARA_ENDPOINT')}/${key}`
+      url: `${this.configService.get('LIARA_ENDPOINT')}/${key}`,
     };
+  }
+  async deleteFile(fileUrl: string): Promise<{ success: boolean }> {
+    const bucket = this.configService.get<string>('LIARA_BUCKET_NAME');
+    const endpoint = this.configService.get<string>('LIARA_ENDPOINT');
+
+    const key = fileUrl.replace(`${endpoint}/`, '');
+
+    const command = new DeleteObjectCommand({
+      Bucket: bucket,
+      Key: key,
+    });
+
+    try {
+      await this.s3Client.send(command);
+      return { success: true };
+    } catch (error) {
+      console.error('Delete Error:', error);
+      return { success: false };
+    }
   }
 }
