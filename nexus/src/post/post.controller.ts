@@ -3,6 +3,7 @@ import {
   Post,
   Delete,
   Get,
+  Put,
   Param,
   UsePipes,
   ValidationPipe,
@@ -13,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 import { Request } from 'express';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
@@ -45,8 +47,21 @@ export class PostController {
   async getUserPosts(@Req() req: Request) {
     return this.postService.getUserPosts(req);
   }
+
   @Get(':id')
   async postDetail(@Param('id') id: string) {
     return this.postService.postDetail(id);
+  }
+
+  @Put(':id')
+  @UsePipes(new ValidationPipe())
+  @UseInterceptors(FilesInterceptor('files', 5))
+  async updatePost(
+    @Body() data: UpdatePostDto,
+    @Param('id') id: string,
+    @Req() req: Request,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    return this.postService.updatePost(data, id, req, files);
   }
 }

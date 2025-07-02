@@ -59,8 +59,36 @@ export class PostService {
   async postDetail(id) {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException('Invalid Id');
-    const target = await this.postModel.findById(id).populate('userID',"username firstName lastName");
+    const target = await this.postModel
+      .findById(id)
+      .populate('userID', 'username firstName lastName');
     if (!target) throw new NotFoundException('Post does not exists');
     return target;
+  }
+
+  async updatePost(data, id, req, files) {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      throw new BadRequestException('Invalid ID');
+
+    const value: any = pick(data, ['content']);
+    const target = await this.postModel.findOne({
+      _id: id,
+      userID: req.user.sub,
+    });
+    if (!target) throw new NotFoundException('Post does not exists');
+    if (Array.isArray(files) && files.length > 0) {
+      for (const image of target.imagesUrl)
+        await this.uploadService.deleteFile(image);
+
+      const uploadResults = await Promise.all(
+        files.map((file) => this.uploadService.uploadFile(file, 'posts')),
+      );
+
+      value.imagesUrl = uploadResults.map((result) => result.url);
+    }
+    const result = await this.postModel.findByIdAndUpdate(id, value, {
+      new: true,
+    });
+    return result;
   }
 }
