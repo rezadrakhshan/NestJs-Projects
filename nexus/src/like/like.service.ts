@@ -23,13 +23,19 @@ export class LikeService {
     const result = await new this.likeModel({
       postID: id,
       userID: req.user.sub,
-    }).populate('postID', 'username firstName lastName');
+    });
+    await this.postModel.findByIdAndUpdate(id, {
+      $inc: { likeCount: 1 },
+    });
     await result.save();
     return result;
   }
   async disLikePost(req, id) {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException('Invalid ID');
+    await this.postModel.findByIdAndUpdate(id, {
+      $inc: { likeCount: -1 },
+    });
     const result = await this.likeModel.findOneAndDelete({
       postID: id,
       userID: req.user.sub,
