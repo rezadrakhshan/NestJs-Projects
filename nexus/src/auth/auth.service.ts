@@ -3,6 +3,7 @@ import {
   HttpException,
   Injectable,
   UnauthorizedException,
+  HttpStatus,
 } from '@nestjs/common';
 import { User } from './schemas/user.schema';
 import { Model } from 'mongoose';
@@ -42,13 +43,11 @@ export class AuthService {
     } catch (error) {
       throw new HttpException(
         {
-          status: error.response.statusCode,
-          error: error.response,
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Registration failed.',
+          error: error?.message || 'Unknown error occurred.',
         },
-        error.response.statusCode,
-        {
-          cause: error,
-        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -72,11 +71,11 @@ export class AuthService {
     } catch (error) {
       throw new HttpException(
         {
-          status: error.response.statusCode,
-          error: error.response,
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Login failed.',
+          error: error?.message || 'Unknown error occurred.',
         },
-        error.response.statusCode,
-        { cause: error },
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

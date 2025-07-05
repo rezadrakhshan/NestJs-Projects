@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { Follow } from './schemas/follow.schema';
 import { User } from 'src/auth/schemas/user.schema';
@@ -16,34 +18,54 @@ export class FollowService {
   ) {}
 
   async followUser(id, req) {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid userID');
-    }
-    const following = await this.userModel.findById(id);
-    if (!following) {
-      throw new NotFoundException('User does not exists');
-    }
-    const newFollow = await new this.followModel({
-      follower: req.user.sub,
-      following: id,
-    });
-    await newFollow.save();
-    return newFollow;
-  }
-  async unFollowUser(id, req) {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('Invalid userID');
-    }
-    const following = await this.userModel.findById(id);
-    if (!following) {
-      throw new NotFoundException('User does not exists');
-    }
-    const newFollow = await this.followModel.deleteOne(
-      {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('Invalid userID');
+      }
+      const following = await this.userModel.findById(id);
+      if (!following) {
+        throw new NotFoundException('User does not exists');
+      }
+      const newFollow = await new this.followModel({
         follower: req.user.sub,
         following: id,
+      });
+      await newFollow.save();
+      return newFollow;
+    } catch (error) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Follow operation failed.',
+          error: error?.message || 'Unknown error occurred.',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  async unFollowUser(id, req) {
+    try {
+      if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException('Invalid userID');
       }
-    );
-    return newFollow;
+      const following = await this.userModel.findById(id);
+      if (!following) {
+        throw new NotFoundException('User does not exists');
+      }
+      const newFollow = await this.followModel.deleteOne({
+        follower: req.user.sub,
+        following: id,
+      });
+      return newFollow;
+    } catch (error) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Unfollow operation failed.',
+          error: error?.message || 'Unknown error occurred.',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
