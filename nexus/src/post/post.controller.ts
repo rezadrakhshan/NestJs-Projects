@@ -17,12 +17,33 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Request } from 'express';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+        content: {
+          type: 'string',
+          example: 'beautiful nature',
+        },
+      },
+    },
+  })
   @UsePipes(new ValidationPipe())
   @UseInterceptors(FilesInterceptor('files', 5))
   async createPost(
@@ -54,6 +75,25 @@ export class PostController {
   }
 
   @Put(':id')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+        content: {
+          type: 'string',
+          example: 'beautiful nature',
+        },
+      },
+    },
+  })
   @UsePipes(new ValidationPipe())
   @UseInterceptors(FilesInterceptor('files', 5))
   async updatePost(
