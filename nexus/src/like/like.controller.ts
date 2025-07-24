@@ -1,7 +1,9 @@
 import { Controller, Post,Delete, Req, Param } from '@nestjs/common';
 import { LikeService } from './like.service';
 import { Request } from 'express';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('like')
 export class LikeController {
   constructor(private likeService: LikeService) {}

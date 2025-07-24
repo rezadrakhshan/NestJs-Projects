@@ -13,17 +13,17 @@ import { LikeModule } from './like/like.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    MongooseModule.forRootAsync({
-      useFactory: () => ({
-        uri: process.env['DATABASE_URL'],
-      }),
-    }),
     AuthModule,
     PostModule,
     CommentModule,
     FollowModule,
     UploadModule,
     LikeModule,
+    MongooseModule.forRootAsync({
+      useFactory: () => ({
+        uri: process.env['DATABASE_URL'],
+      }),
+    }),
   ],
 })
 export class AppModule {}
