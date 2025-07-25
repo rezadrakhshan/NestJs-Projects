@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -11,6 +12,7 @@ import { MailService } from '@app/mail/mail.service';
 import { pick } from 'lodash';
 import { getVerifyCodeTemplate } from '@app/templates/send-code';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +20,7 @@ export class AuthService {
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Code.name) private codeModel: Model<Code>,
     private readonly mailService: MailService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async sendCode(data): Promise<{ status: string }> {
@@ -50,5 +53,15 @@ export class AuthService {
     password = await bcrypt.hash(password, saltRounds);
     user = await this.userModel.create({ email, password });
     return { status: true };
+  }
+
+  async login(data) {
+    const { email, password } = pick(data, ['email', 'password']);
+    const target = await this.userModel.findOne({ email: email });
+    if (!target) throw new NotFoundException('Invalid email or password');
+    const isMatch = await bcrypt.compare(password, target.password);
+    if (!isMatch) throw new NotFoundException('Invalid email or password');
+    const payload = { user: target.id };
+    return { access_token: await this.jwtService.signAsync(payload) };
   }
 }
