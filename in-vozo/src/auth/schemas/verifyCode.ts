@@ -14,4 +14,4 @@ export class Code {
 }
 
 export const codeSchema = SchemaFactory.createForClass(Code);
-codeSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+codeSchema.index({ expireAt: 1 }, { expireAfterSeconds: 0 });

@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SendCodeDto } from './dto/sendCode.dto';
+import { ConfirmCodeDto } from './dto/confirmCode.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,5 +18,17 @@ export class AuthController {
   @UsePipes(new ValidationPipe())
   async sendCode(@Body() data: SendCodeDto) {
     return this.authService.sendCode(data);
+  }
+
+  @Post('confirm-code')
+  @UsePipes(new ValidationPipe())
+  async confirmCode(@Body() data: ConfirmCodeDto) {
+    return this.authService.confirmCode(data);
+  }
+
+  @Post('register')
+  @UsePipes(new ValidationPipe())
+  async register(@Body() data: RegisterDto) {
+    return this.authService.register(data)
   }
 }
