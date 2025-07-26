@@ -18,7 +18,7 @@ export class Customer {
   @Prop({ required: true })
   address: string;
   @Prop({ required: true })
-  postalCode: string;
+  postalCode: number;
   @Prop({ required: true })
   country: string;
   @Prop()
