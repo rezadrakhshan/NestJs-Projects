@@ -19,7 +19,6 @@ export class Invoice {
         description: { type: String, required: true },
         quantity: { type: Number, required: true },
         unitPrice: { type: Number, required: true },
-        total: { type: Number, required: true },
       },
     ],
     required: true,
@@ -28,7 +27,6 @@ export class Invoice {
     description: string;
     quantity: number;
     unitPrice: number;
-    total: number;
   }[];
   @Prop({ required: true })
   total: number;
