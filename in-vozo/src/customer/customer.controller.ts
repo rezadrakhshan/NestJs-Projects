@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   Req,
   UsePipes,
@@ -18,5 +19,10 @@ export class CustomerController {
   @UsePipes(new ValidationPipe())
   async createCustomer(@Body() data: CreateCustomerDto, @Req() req: Request) {
     return this.customerService.createCustomer(data, req);
+  }
+
+  @Get()
+  async getCustomersList(@Req() req: Request) {
+    return this.customerService.getCustomersList(req);
   }
 }

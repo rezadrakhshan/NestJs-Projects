@@ -27,4 +27,9 @@ export class CustomerService {
     });
     return result;
   }
+
+  async getCustomersList(req) {
+    const result = await this.customerModel.find({ userID: req.user.user });
+    return result;
+  }
 }
