@@ -10,7 +10,9 @@ import {
 import { CustomerService } from './customer.service';
 import { Request } from 'express';
 import { CreateCustomerDto } from './dto/createCustomer.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('customer')
 export class CustomerController {
   constructor(private customerService: CustomerService) {}

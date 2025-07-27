@@ -12,7 +12,9 @@ import {
 import { InvoiceService } from './invoice.service';
 import { Request, Response } from 'express';
 import { CreateInvoiceDto } from './dto/createInvoice.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('invoice')
 export class InvoiceController {
   constructor(private invoiceService: InvoiceService) {}
@@ -34,6 +36,6 @@ export class InvoiceController {
     @Param('id') id: string,
     @Req() req: Request,
   ) {
-    return this.invoiceService.generatePdf(res, id,req);
+    return this.invoiceService.generatePdf(res, id, req);
   }
 }
