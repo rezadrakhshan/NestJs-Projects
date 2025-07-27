@@ -3,12 +3,14 @@ import {
   Post,
   UsePipes,
   Req,
+  Res,
+  Param,
   Body,
   Get,
   ValidationPipe,
 } from '@nestjs/common';
 import { InvoiceService } from './invoice.service';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { CreateInvoiceDto } from './dto/createInvoice.dto';
 
 @Controller('invoice')
@@ -24,5 +26,14 @@ export class InvoiceController {
   @Get()
   async getInvoiceList(@Req() req: Request) {
     return this.invoiceService.getInvoiceList(req);
+  }
+
+  @Get('pdf/:id')
+  async pdfGenerator(
+    @Res() res: Response,
+    @Param('id') id: string,
+    @Req() req: Request,
+  ) {
+    return this.invoiceService.generatePdf(res, id,req);
   }
 }

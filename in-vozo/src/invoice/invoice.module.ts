@@ -7,6 +7,7 @@ import {
   customerSchema,
 } from '@app/customer/schemas/customer.schema';
 import { Invoice, invoiceSchema } from './schemas/invoice.schema';
+import { PdfModule } from '@app/pdf/pdf.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { Invoice, invoiceSchema } from './schemas/invoice.schema';
       { name: Customer.name, schema: customerSchema },
       { name: Invoice.name, schema: invoiceSchema },
     ]),
+    PdfModule
   ],
   providers: [InvoiceService],
   controllers: [InvoiceController],
