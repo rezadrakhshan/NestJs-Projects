@@ -58,7 +58,7 @@ export class InvoiceService {
       _id: id,
       userID: req.user.user,
     });
-    if (!invoice) throw new NotFoundException('Invoice does not exists');
+    if (!invoice) throw new NotFoundException('Invoice does not exist');
     const pdfBuffer = await this.pdfGenerator.generatePdf(invoice);
 
     res.set({
@@ -67,5 +67,31 @@ export class InvoiceService {
       'Content-Length': pdfBuffer.length,
     });
     res.end(pdfBuffer);
+  }
+
+  async updateInvoice(id, data, req) {
+    const target = await this.invoiceModel.findOne({
+      _id: id,
+      userID: req.user.user,
+    });
+    if (!target) throw new NotFoundException('Invoice does not exist');
+    return await this.invoiceModel.findOneAndUpdate(
+      { _id: id, userID: req.user.user },
+      data,
+      { new: true },
+    );
+  }
+
+  async removeInvoice(id, req) {
+    const deleted = await this.invoiceModel.findOneAndDelete({
+      _id: id,
+      userID: req.user.user,
+    });
+
+    if (!deleted) {
+      throw new NotFoundException('Invoice does not exist');
+    }
+
+    return { msg: 'Invoice removed' };
   }
 }
