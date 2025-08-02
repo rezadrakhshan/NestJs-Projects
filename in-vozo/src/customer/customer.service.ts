@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Customer } from './schemas/customer.schema';
@@ -26,6 +26,19 @@ export class CustomerService {
       userID: req.user.user,
     });
     return result;
+  }
+
+  async updateCustomer(id, data, req) {
+    const updated = await this.customerModel.findOneAndUpdate(
+      {
+        _id: id,
+        userID: req.user.user,
+      },
+      data,
+      { new: true },
+    );
+    if (!updated) throw new NotFoundException('Customer does not exists');
+    return updated;
   }
 
   async getCustomersList(req) {
