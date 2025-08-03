@@ -55,7 +55,7 @@ export class AuthService {
     return { status: true };
   }
 
-  async login(data) {
+  async login(data): Promise<{ access_token: string }> {
     const { email, password } = pick(data, ['email', 'password']);
     const target = await this.userModel.findOne({ email: email });
     if (!target) throw new NotFoundException('Invalid email or password');

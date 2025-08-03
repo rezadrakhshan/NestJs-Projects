@@ -53,7 +53,7 @@ export class InvoiceService {
     return this.invoiceModel.find({ userID: req.user.user });
   }
 
-  async generatePdf(res, id, req) {
+  async generatePdf(res, id, req): Promise<void> {
     const invoice = await this.invoiceModel.findOne({
       _id: id,
       userID: req.user.user,
@@ -69,20 +69,17 @@ export class InvoiceService {
     res.end(pdfBuffer);
   }
 
-  async updateInvoice(id, data, req) {
-    const target = await this.invoiceModel.findOne({
-      _id: id,
-      userID: req.user.user,
-    });
-    if (!target) throw new NotFoundException('Invoice does not exist');
-    return await this.invoiceModel.findOneAndUpdate(
+  async updateInvoice(id, data, req): Promise<Invoice> {
+    const target = await this.invoiceModel.findOneAndUpdate(
       { _id: id, userID: req.user.user },
       data,
       { new: true },
     );
+    if (!target) throw new NotFoundException('Invoice does not exist');
+    return target;
   }
 
-  async removeInvoice(id, req) {
+  async removeInvoice(id, req): Promise<{ msg: string }> {
     const deleted = await this.invoiceModel.findOneAndDelete({
       _id: id,
       userID: req.user.user,

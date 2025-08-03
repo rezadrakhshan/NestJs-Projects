@@ -18,28 +18,30 @@ export class AuthController {
   @Public()
   @Post('send-code')
   @UsePipes(new ValidationPipe())
-  async sendCode(@Body() data: SendCodeDto) {
+  async sendCode(@Body() data: SendCodeDto): Promise<{ status: string }> {
     return this.authService.sendCode(data);
   }
 
   @Public()
   @Post('confirm-code')
   @UsePipes(new ValidationPipe())
-  async confirmCode(@Body() data: ConfirmCodeDto) {
+  async confirmCode(
+    @Body() data: ConfirmCodeDto,
+  ): Promise<{ status: boolean }> {
     return this.authService.confirmCode(data);
   }
 
   @Public()
   @Post('register')
   @UsePipes(new ValidationPipe())
-  async register(@Body() data: RegisterDto) {
+  async register(@Body() data: RegisterDto): Promise<{ status: Boolean }> {
     return this.authService.register(data);
   }
 
   @Public()
   @Post('login')
   @UsePipes(new ValidationPipe())
-  async login(@Body() data: RegisterDto) {
+  async login(@Body() data: RegisterDto): Promise<{ access_token: string }> {
     return this.authService.login(data);
   }
 }
