@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Customer } from './schemas/customer.schema';
 import { pick } from 'lodash';
 
@@ -10,7 +14,7 @@ export class CustomerService {
     @InjectModel(Customer.name) private customerModel: Model<Customer>,
   ) {}
 
-  async createCustomer(data, req) {
+  async createCustomer(data, req): Promise<Customer> {
     const value = pick(data, [
       'fullname',
       'email',
@@ -28,7 +32,9 @@ export class CustomerService {
     return result;
   }
 
-  async updateCustomer(id, data, req) {
+  async updateCustomer(id, data, req): Promise<Customer> {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      throw new BadRequestException('Invalid ID');
     const updated = await this.customerModel.findOneAndUpdate(
       {
         _id: id,
@@ -41,8 +47,19 @@ export class CustomerService {
     return updated;
   }
 
-  async getCustomersList(req) {
+  async getCustomersList(req): Promise<Customer[]> {
     const result = await this.customerModel.find({ userID: req.user.user });
     return result;
+  }
+
+  async removeCustomer(id, req): Promise<{ msg: string }> {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      throw new BadRequestException('Invalid ID');
+    const deleted = await this.customerModel.findOneAndDelete({
+      _id: id,
+      userID: req.user.user,
+    });
+    if (!deleted) throw new NotFoundException('Cutomer does not exists');
+    return { msg: 'Customer removed' };
   }
 }
