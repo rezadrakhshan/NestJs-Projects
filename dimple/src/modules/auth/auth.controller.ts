@@ -1,7 +1,9 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
+  Param,
   ValidationPipe,
   UsePipes,
 } from '@nestjs/common';
@@ -13,6 +15,12 @@ import { Public } from 'src/decorator/public.decorator';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Public()
+  @Get('send-code/:to')
+  async sendCode(@Param('to') to: string) {
+    return this.authService.sendCode(to);
+  }
 
   @Public()
   @Post('register')
