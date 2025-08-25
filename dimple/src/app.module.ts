@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -18,6 +20,13 @@ import { AuthModule } from './modules/auth/auth.module';
       synchronize: false,
       entities: [__dirname + '/database/core/**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
+    }),
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      host: 'localhost',
+      port: 6379,
+      ttl: 0,
     }),
     AuthModule,
   ],
