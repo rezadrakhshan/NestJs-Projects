@@ -87,4 +87,18 @@ export class AuthService {
       access_token: await this.jwtService.signAsync(payload),
     };
   }
+
+  async forgotPassword(data): Promise<{ status: true }> {
+    const target = await this.userRepository.findOne({
+      where: { email: data.email },
+    });
+    if (!target) throw new NotFoundException('User does not exists');
+    const codeIsValid = await this.cacheManager.get(`${data.email}`);
+    if (codeIsValid != data.code) throw new BadRequestException('Invalid code');
+    await this.cacheManager.del(`${data.email}`);
+    const saltRounds = 10;
+    target.password = await bcrypt.hash(data.password, saltRounds);
+    await this.userRepository.save(target);
+    return { status: true };
+  }
 }

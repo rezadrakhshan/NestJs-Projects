@@ -10,6 +10,7 @@ import {
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.sto';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot.dto';
 import { Public } from 'src/decorator/public.decorator';
 
 @Controller('auth')
@@ -19,7 +20,7 @@ export class AuthController {
   @Public()
   @Get('send-code/:to/:type')
   async sendCode(@Param('to') to: string, @Param('type') type: string) {
-    return this.authService.sendCode(to,type);
+    return this.authService.sendCode(to, type);
   }
 
   @Public()
@@ -34,5 +35,12 @@ export class AuthController {
   @UsePipes(new ValidationPipe())
   async login(@Body() data: LoginDto) {
     return this.authService.login(data);
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @UsePipes(new ValidationPipe())
+  async forgotPassword(@Body() data: ForgotPasswordDto) {
+    return this.authService.forgotPassword(data);
   }
 }
