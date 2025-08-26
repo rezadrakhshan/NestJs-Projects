@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,16 +25,40 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
-  async sendCode(to: string) {
-    const code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-    await this.mailerService.sendMail({
-      to,
-      subject: 'Welcome to NestJS',
-      template: 'code',
-      context: {
-        code: code,
-      },
-    });
+  async sendCode(to: string, type: string): Promise<{ status: boolean }> {
+    switch (type) {
+      case 'r':
+        const code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+        await this.cacheManager.set(`${to}`, code);
+        await this.mailerService.sendMail({
+          to,
+          subject: 'Register - Dimple',
+          template: 'code',
+          context: {
+            code: code,
+          },
+        });
+        return { status: true };
+
+      case 'f':
+        const user = await this.userRepository.findOne({
+          where: { email: to },
+        });
+        if (!user) throw new NotFoundException('Invalid email');
+        const forgotCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+        await this.cacheManager.set(`${to}`, forgotCode);
+        await this.mailerService.sendMail({
+          to,
+          subject: 'Forgot password - Dimple',
+          template: 'code',
+          context: {
+            code: forgotCode,
+          },
+        });
+        return { status: true };
+      default:
+        return { status: false };
+    }
   }
 
   async register(data): Promise<{ status: boolean }> {
@@ -40,6 +66,9 @@ export class AuthService {
       where: [{ email: data.email }, { phone: data.phone }],
     });
     if (checkEmail) throw new ConflictException('Email or Phone taken');
+    const codeIsValid = await this.cacheManager.get(`${data.email}`);
+    if (codeIsValid != data.code) throw new BadRequestException('Invalid code');
+    await this.cacheManager.del(`${data.email}`);
     const saltRounds = 10;
     data.password = await bcrypt.hash(data.password, saltRounds);
     await this.userRepository.save(data);

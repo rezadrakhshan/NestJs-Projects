@@ -1,7 +1,10 @@
-import { IsString, IsEmail, IsNotEmpty } from 'class-validator';
+import { IsString, IsEmail, IsNumber, IsNotEmpty } from 'class-validator';
 import { Role } from 'src/database/enum/role.enum';
 
 export class RegisterDto {
+  @IsNotEmpty()
+  @IsNumber()
+  code: number;
   @IsNotEmpty()
   @IsString()
   firstName: string;

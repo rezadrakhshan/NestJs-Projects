@@ -17,9 +17,9 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
-  @Get('send-code/:to')
-  async sendCode(@Param('to') to: string) {
-    return this.authService.sendCode(to);
+  @Get('send-code/:to/:type')
+  async sendCode(@Param('to') to: string, @Param('type') type: string) {
+    return this.authService.sendCode(to,type);
   }
 
   @Public()
