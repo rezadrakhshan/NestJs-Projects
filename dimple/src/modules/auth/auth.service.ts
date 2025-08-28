@@ -44,7 +44,7 @@ export class AuthService {
         const user = await this.userRepository.findOne({
           where: { email: to },
         });
-        if (!user) throw new NotFoundException('Invalid email');
+        if (!user) throw new NotFoundException('No account found with this email address.');
         const forgotCode = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
         await this.cacheManager.set(`${to}`, forgotCode);
         await this.mailerService.sendMail({
@@ -65,9 +65,9 @@ export class AuthService {
     const checkEmail = await this.userRepository.findOne({
       where: [{ email: data.email }, { phone: data.phone }],
     });
-    if (checkEmail) throw new ConflictException('Email or Phone taken');
+    if (checkEmail) throw new ConflictException('This email or phone number is already registered.');
     const codeIsValid = await this.cacheManager.get(`${data.email}`);
-    if (codeIsValid != data.code) throw new BadRequestException('Invalid code');
+    if (codeIsValid != data.code) throw new BadRequestException('Invalid request type for code sending.');
     await this.cacheManager.del(`${data.email}`);
     const saltRounds = 10;
     data.password = await bcrypt.hash(data.password, saltRounds);
@@ -79,9 +79,9 @@ export class AuthService {
     const checkUser = await this.userRepository.findOne({
       where: [{ email: data.email }, { phone: data.phone }],
     });
-    if (!checkUser) throw new UnauthorizedException('Invalid data');
+    if (!checkUser) throw new UnauthorizedException('Incorrect email/phone or password');
     const isMath = await bcrypt.compare(data.password, checkUser.password);
-    if (!isMath) throw new UnauthorizedException('Invalid data');
+    if (!isMath) throw new UnauthorizedException('Incorrect email/phone or password');
     const payload = { sub: checkUser.id };
     return {
       access_token: await this.jwtService.signAsync(payload),
@@ -92,9 +92,9 @@ export class AuthService {
     const target = await this.userRepository.findOne({
       where: { email: data.email },
     });
-    if (!target) throw new NotFoundException('User does not exists');
+    if (!target) throw new NotFoundException('No account found with this email address.');
     const codeIsValid = await this.cacheManager.get(`${data.email}`);
-    if (codeIsValid != data.code) throw new BadRequestException('Invalid code');
+    if (codeIsValid != data.code) throw new BadRequestException('Invalid request type for code sending.');
     await this.cacheManager.del(`${data.email}`);
     const saltRounds = 10;
     target.password = await bcrypt.hash(data.password, saltRounds);
