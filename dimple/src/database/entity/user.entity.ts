@@ -1,6 +1,7 @@
 import { BaseEntity } from './base.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { Role } from '../enum/role.enum';
+import { Blog } from './blog.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -22,4 +23,6 @@ export class User extends BaseEntity {
   @Column({ nullable: false })
   password: string;
 
+  @OneToMany(()=> Blog,(blog)=>blog.author)
+  blogs: Blog[]
 }
