@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
+import { BlogModule } from './modules/blog/blog.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 
@@ -29,6 +30,7 @@ import * as redisStore from 'cache-manager-redis-store';
       ttl: 0,
     }),
     AuthModule,
+    BlogModule,
   ],
 })
 export class AppModule {}
