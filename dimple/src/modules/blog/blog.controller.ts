@@ -1,12 +1,14 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   ValidationPipe,
   Req,
   UsePipes,
   UseInterceptors,
   UploadedFile,
+  Param,
 } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { Request } from 'express';
@@ -27,4 +29,20 @@ export class BlogController {
   ) {
     return this.blogService.createBlog(data, thumbnail, req);
   }
+
+  @Get()
+  async getAllBlog() {
+    return this.blogService.getAllBlog();
+  }
+
+  @Get('/user')
+  async getUserBlog(@Req() req: Request) {
+    return this.blogService.getUserBlog(req)
+  }
+
+  @Get(':id')
+  async getSingleBlog(@Param('id') id: string) {
+    return this.blogService.getSingleBlog(id);
+  }
+
 }
