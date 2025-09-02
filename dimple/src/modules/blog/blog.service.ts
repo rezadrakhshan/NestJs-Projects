@@ -64,33 +64,42 @@ export class BlogService {
     return result;
   }
 
-async updateBlog(data, id, req, thumbnail) {
-  const target = await this.blogRepository.findOne({
-    where: { id: id, author: { id: req.user.sub } },
-  });
+  async updateBlog(data, id, req, thumbnail) {
+    const target = await this.blogRepository.findOne({
+      where: { id: id, author: { id: req.user.sub } },
+    });
 
-  if (!target) throw new NotFoundException('Blog does not exists');
+    if (!target) throw new NotFoundException('Blog does not exists');
 
-  if (thumbnail) {
-    if (target.thumbnail) {
-      await this.uploadService.deleteFile(target.thumbnail);
+    if (thumbnail) {
+      if (target.thumbnail) {
+        await this.uploadService.deleteFile(target.thumbnail);
+      }
+
+      const file: any = await this.uploadService.uploadFile(thumbnail, 'blog');
+      if (!file || !file.url) {
+        throw new BadRequestException('File upload failed');
+      }
+
+      data.thumbnail = file.url.replace(
+        'https://storage.',
+        'https://dimple.storage.',
+      );
     }
 
-    const file: any = await this.uploadService.uploadFile(thumbnail, 'blog');
-    if (!file || !file.url) {
-      throw new BadRequestException('File upload failed');
-    }
+    Object.assign(target, data);
+    await this.blogRepository.save(target);
 
-    data.thumbnail = file.url.replace(
-      'https://storage.',
-      'https://dimple.storage.',
-    );
+    return target;
   }
 
-  Object.assign(target, data);
-  await this.blogRepository.save(target);
-
-  return target;
-}
-
+  async deleteBlog(req, id) {
+    const target = await this.blogRepository.findOne({
+      where: { id: id, author: { id: req.user.sub } },
+    });
+    if (!target) throw new NotFoundException('Blog does not exists');
+    await this.uploadService.deleteFile(target.thumbnail);
+    await this.blogRepository.remove(target);
+    return target;
+  }
 }

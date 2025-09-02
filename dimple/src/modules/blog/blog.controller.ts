@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Put,
+  Delete,
   Get,
   Body,
   ValidationPipe,
@@ -57,5 +58,10 @@ export class BlogController {
     @UploadedFile() thumbnail,
   ) {
     return this.blogService.updateBlog(data, id, req, thumbnail);
+  }
+
+  @Delete(':id')
+  async removeBlog(@Param('id') id:string , @Req() req:Request){
+    return this.blogService.deleteBlog(req,id)
   }
 }
