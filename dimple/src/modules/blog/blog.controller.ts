@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Put,
   Get,
   Body,
   ValidationPipe,
@@ -14,6 +15,7 @@ import { BlogService } from './blog.service';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateBlogDto } from './dto/create-blog.dto';
+import { UpdateBlogDto } from './dto/update-blog.dto';
 
 @Controller('blog')
 export class BlogController {
@@ -37,7 +39,7 @@ export class BlogController {
 
   @Get('/user')
   async getUserBlog(@Req() req: Request) {
-    return this.blogService.getUserBlog(req)
+    return this.blogService.getUserBlog(req);
   }
 
   @Get(':id')
@@ -45,4 +47,15 @@ export class BlogController {
     return this.blogService.getSingleBlog(id);
   }
 
+  @Put(':id')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @UseInterceptors(FileInterceptor('thumbnail'))
+  async updateBlog(
+    @Body() data: UpdateBlogDto,
+    @Param('id') id: string,
+    @Req() req: Request,
+    @UploadedFile() thumbnail,
+  ) {
+    return this.blogService.updateBlog(data, id, req, thumbnail);
+  }
 }

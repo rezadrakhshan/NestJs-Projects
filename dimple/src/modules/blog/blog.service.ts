@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from 'src/database/entity/blog.entity';
 import { User } from 'src/database/entity/user.entity';
-import { Repository } from 'typeorm';
+import { Any, Repository } from 'typeorm';
 import { UploadService } from '../upload/upload.service';
 
 @Injectable()
@@ -63,4 +63,34 @@ export class BlogService {
     });
     return result;
   }
+
+async updateBlog(data, id, req, thumbnail) {
+  const target = await this.blogRepository.findOne({
+    where: { id: id, author: { id: req.user.sub } },
+  });
+
+  if (!target) throw new NotFoundException('Blog does not exists');
+
+  if (thumbnail) {
+    if (target.thumbnail) {
+      await this.uploadService.deleteFile(target.thumbnail);
+    }
+
+    const file: any = await this.uploadService.uploadFile(thumbnail, 'blog');
+    if (!file || !file.url) {
+      throw new BadRequestException('File upload failed');
+    }
+
+    data.thumbnail = file.url.replace(
+      'https://storage.',
+      'https://dimple.storage.',
+    );
+  }
+
+  Object.assign(target, data);
+  await this.blogRepository.save(target);
+
+  return target;
+}
+
 }
