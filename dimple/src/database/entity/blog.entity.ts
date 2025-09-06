@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { User } from './user.entity';
+import { Category } from './category.entity';
 import { BlogStatus } from '../enum/status.enum';
 
 @Entity()
@@ -18,7 +19,11 @@ export class Blog extends BaseEntity {
 
   @Column({ type: 'enum', enum: BlogStatus, default: BlogStatus.DRAFT })
   status: BlogStatus;
-  
+
   @ManyToOne(() => User, (user) => user.blogs, { onDelete: 'CASCADE' })
   author: User;
+  @ManyToOne(() => Category, (category) => category.blogs, {
+    onDelete: 'CASCADE',
+  })
+  category: Category;
 }

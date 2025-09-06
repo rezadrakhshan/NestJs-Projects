@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from 'src/database/entity/blog.entity';
 import { User } from 'src/database/entity/user.entity';
-import { Any, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UploadService } from '../upload/upload.service';
 
 @Injectable()

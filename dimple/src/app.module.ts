@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './modules/auth/auth.module';
 import { BlogModule } from './modules/blog/blog.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { CategoryModule } from './modules/category/category.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -31,6 +32,7 @@ import * as redisStore from 'cache-manager-redis-store';
     }),
     AuthModule,
     BlogModule,
+    CategoryModule
   ],
 })
 export class AppModule {}
