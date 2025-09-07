@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from 'src/database/entity/blog.entity';
 import { User } from 'src/database/entity/user.entity';
+import { Category } from 'src/database/entity/category.entity';
 import { Repository } from 'typeorm';
 import { UploadService } from '../upload/upload.service';
 
@@ -16,6 +17,8 @@ export class BlogService {
     private blogRepository: Repository<Blog>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>,
     private uploadService: UploadService,
   ) {}
 
@@ -24,6 +27,10 @@ export class BlogService {
       where: { id: req.user?.sub },
     });
     if (!user) throw new NotFoundException('User not found');
+    const category = await this.categoryRepository.findOne({
+      where: { id: data.categoryID },
+    });
+    if (!category) throw new NotFoundException('Invalid Category ID');
     if (!thumbnail) throw new BadRequestException('Thumbnail file is required');
     const file: any = await this.uploadService.uploadFile(thumbnail, 'blog');
     if (!file || !file.url) throw new BadRequestException('File upload failed');
@@ -32,7 +39,9 @@ export class BlogService {
       'https://dimple.storage.',
     );
     const blog = this.blogRepository.create({
-      ...data,
+      title: data.title,
+      content: data.content,
+      category: category,
       author: user,
       thumbnail: finalUrl,
     });
@@ -87,6 +96,14 @@ export class BlogService {
       );
     }
 
+    if (data.categoryID) {
+      const category = await this.categoryRepository.findOne({
+        where: { id: data.categoryID },
+      });
+      if (!category) throw new NotFoundException('Invalid Category ID');
+      data.category = category
+    }
+
     Object.assign(target, data);
     await this.blogRepository.save(target);
 
@@ -95,7 +112,11 @@ export class BlogService {
 
   async deleteBlog(req, id) {
     const target = await this.blogRepository.findOne({
-      where: { id: id, author: { id: req.user.sub } },
+      where: {
+        id,
+        author: { id: req.user.sub },
+      },
+      relations: ['author'],
     });
     if (!target) throw new NotFoundException('Blog does not exists');
     await this.uploadService.deleteFile(target.thumbnail);
