@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from 'src/database/entity/blog.entity';
 import { User } from 'src/database/entity/user.entity';
 import { Category } from 'src/database/entity/category.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { UploadService } from '../upload/upload.service';
 
 @Injectable()
@@ -101,7 +101,7 @@ export class BlogService {
         where: { id: data.categoryID },
       });
       if (!category) throw new NotFoundException('Invalid Category ID');
-      data.category = category
+      data.category = category;
     }
 
     Object.assign(target, data);
@@ -122,5 +122,11 @@ export class BlogService {
     await this.uploadService.deleteFile(target.thumbnail);
     await this.blogRepository.remove(target);
     return target;
+  }
+
+  async searchBlog(title, content) {
+    return this.blogRepository.find({
+      where: [{ title: Like(`%${title}%`) }, { content: Like(`%${content}%`) }],
+    });
   }
 }

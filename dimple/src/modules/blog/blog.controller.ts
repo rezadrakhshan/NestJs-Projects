@@ -7,6 +7,7 @@ import {
   Body,
   ValidationPipe,
   Req,
+  Query,
   UsePipes,
   UseInterceptors,
   UploadedFile,
@@ -43,6 +44,14 @@ export class BlogController {
     return this.blogService.getUserBlog(req);
   }
 
+  @Get('search')
+  async searchBlogs(
+    @Query('title') title: string,
+    @Query('content') content: string,
+  ) {
+    return this.blogService.searchBlog(title, content);
+  }
+
   @Get(':id')
   async getSingleBlog(@Param('id') id: string) {
     return this.blogService.getSingleBlog(id);
@@ -61,7 +70,7 @@ export class BlogController {
   }
 
   @Delete(':id')
-  async removeBlog(@Param('id') id:string , @Req() req:Request){
-    return this.blogService.deleteBlog(req,id)
+  async removeBlog(@Param('id') id: string, @Req() req: Request) {
+    return this.blogService.deleteBlog(req, id);
   }
 }
