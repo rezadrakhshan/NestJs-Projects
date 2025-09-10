@@ -6,12 +6,15 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from 'src/database/entity/category.entity';
+import { Blog } from 'src/database/entity/blog.entity';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
+    @InjectRepository(Blog)
+    private blogRepository: Repository<Blog>,
   ) {}
 
   async createCategory(data) {
@@ -48,5 +51,25 @@ export class CategoryService {
       throw new NotFoundException(`Category with id "${id}" does not exist.`);
     await this.categoryRepository.remove(target);
     return target;
+  }
+
+  async filterCategory(title: string) {
+    const category = await this.categoryRepository.findOne({
+      where: { title },
+    });
+    if (!category) {
+      throw new NotFoundException(`Category with title "${title}" does not exist.`);
+    }
+    const [blogs, count] = await this.blogRepository.findAndCount({
+      where: { category: { title } },
+    });
+    return {
+      category: {
+        id: category.id,
+        title: category.title,
+      },
+      totalBlogs: count,
+      blogs,
+    };
   }
 }

@@ -39,4 +39,9 @@ export class CategoryController {
   async removeCategory(@Param('id') id: string) {
     return this.categoryService.removeCategory(id);
   }
+
+  @Get(':title')
+  async filterCategory(@Param('title') title: string) {
+    return this.categoryService.filterCategory(title)
+  }
 }
