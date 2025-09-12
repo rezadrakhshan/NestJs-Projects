@@ -2,6 +2,7 @@ import { BaseEntity } from './base.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { Role } from '../enum/role.enum';
 import { Blog } from './blog.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -19,10 +20,13 @@ export class User extends BaseEntity {
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role: Role;
-  
+
   @Column({ nullable: false })
   password: string;
 
-  @OneToMany(()=> Blog,(blog)=>blog.author)
-  blogs: Blog[]
+  @OneToMany(() => Blog, (blog) => blog.author)
+  blogs: Blog[];
+
+  @OneToMany(() => Comment, (comment) => comment.author)
+  comments: Comment[];
 }
