@@ -8,6 +8,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { ProductModule } from './modules/product/product.module';
+import { ProductCategoryModule } from './modules/product-category/product-category.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -39,6 +40,7 @@ import * as redisStore from 'cache-manager-redis-store';
     CommentModule,
     ContactModule,
     ProductModule,
+    ProductCategoryModule,
   ],
 })
 export class AppModule {}
