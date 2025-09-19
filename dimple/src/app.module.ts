@@ -7,6 +7,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { CategoryModule } from './modules/category/category.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { ContactModule } from './modules/contact/contact.module';
+import { ProductModule } from './modules/product/product.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -37,6 +38,7 @@ import * as redisStore from 'cache-manager-redis-store';
     CategoryModule,
     CommentModule,
     ContactModule,
+    ProductModule,
   ],
 })
 export class AppModule {}
