@@ -24,6 +24,15 @@ export class ProductService {
       throw new BadRequestException('Thumbnail image is required.');
     if (!images) throw new BadRequestException('Product images are required.');
 
+    const category = await this.productCategopryRepository.findOne({
+      where: { id: data.category },
+    });
+
+    if (!category)
+      throw new NotFoundException(
+        `Category with id ${data.category} not found!`,
+      );
+
     data.thumbnail = (
       await this.uploadService.uploadFile(thumbnail, 'Product')
     ).url;
@@ -65,6 +74,8 @@ export class ProductService {
     if (!product) {
       throw new NotFoundException(`Product with id ${id} not found.`);
     }
+    await this.uploadService.deleteFile(product.thumbnail);
+    for (const url of product.images) await this.uploadService.deleteFile(url);
     await this.productRepository.remove(product);
     return {
       message: 'Product removed successfully.',
