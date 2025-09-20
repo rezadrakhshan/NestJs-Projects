@@ -82,4 +82,46 @@ export class ProductService {
       data: product,
     };
   }
+
+  async updateProduct(data, id, thumbnail?, images?) {
+    const product = await this.productRepository.findOne({ where: { id } });
+    if (!product) {
+      throw new NotFoundException(`Product with id ${id} not found.`);
+    }
+
+    if (thumbnail) {
+      if (product.thumbnail) {
+        await this.uploadService.deleteFile(product.thumbnail);
+      }
+      const uploadedThumbnail = await this.uploadService.uploadFile(thumbnail, 'Product');
+      data.thumbnail = uploadedThumbnail.url;
+    }
+
+    if (images && images.length > 0) {
+      if (product.images && product.images.length > 0) {
+        await Promise.all(product.images.map(url => this.uploadService.deleteFile(url)));
+      }
+      const uploadResults = await Promise.all(
+        images.map(file => this.uploadService.uploadFile(file, 'Product'))
+      );
+      data.images = uploadResults.map(result => result.url);
+    }
+
+    if (data.category) {
+      const category = await this.productCategopryRepository.findOne({
+        where: { id: data.category },
+      });
+      if (!category) {
+        throw new NotFoundException(`Category with id ${data.category} not found!`);
+      }
+    }
+
+    Object.assign(product, data);
+    await this.productRepository.save(product);
+
+    return {
+      message: 'Product updated successfully.',
+      data: product,
+    };
+  }
 }

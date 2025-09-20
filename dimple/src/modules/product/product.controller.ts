@@ -4,6 +4,7 @@ import {
   Body,
   Delete,
   Get,
+  Put,
   Param,
   UploadedFiles,
   ValidationPipe,
@@ -12,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create=product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 
 @Controller('product')
@@ -51,6 +53,28 @@ export class ProductController {
 
   @Delete(':id')
   async removeProduct(@Param('id') id: string) {
-    return this.productService.removeProduct(id)
+    return this.productService.removeProduct(id);
+  }
+
+  @Put(':id')
+  @UsePipes(new ValidationPipe())
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'thumbnail', maxCount: 1 },
+      { name: 'images', maxCount: 5 },
+    ]),
+  )
+  async updateProduct(
+    @Body() data: UpdateProductDto,
+    @Param('id') id: string,
+    @UploadedFiles()
+    files: {
+      thumbnail;
+      images;
+    },
+  ) {
+    const thumbnail = files.thumbnail?.[0];
+    const images = files.images || [];
+    return this.productService.updateProduct(data, id, thumbnail, images);
   }
 }
