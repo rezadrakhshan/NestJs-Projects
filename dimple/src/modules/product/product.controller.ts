@@ -2,7 +2,9 @@ import {
   Controller,
   Post,
   Body,
-  UploadedFile,
+  Delete,
+  Get,
+  Param,
   UploadedFiles,
   ValidationPipe,
   UsePipes,
@@ -35,5 +37,20 @@ export class ProductController {
     const thumbnail = files.thumbnail?.[0];
     const images = files.images || [];
     return this.productService.createProduct(data, thumbnail, images);
+  }
+
+  @Get()
+  async getAllProduct() {
+    return this.productService.getAllProduct();
+  }
+
+  @Get(':id')
+  async getProductDetail(@Param('id') id: string) {
+    return this.productService.getProductDetail(id);
+  }
+
+  @Delete(':id')
+  async removeProduct(@Param('id') id: string) {
+    return this.productService.removeProduct(id)
   }
 }
