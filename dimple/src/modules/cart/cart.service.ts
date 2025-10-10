@@ -19,6 +19,26 @@ export class CartService {
     private cacheManager: Cache,
   ) {}
 
+  async getCarts(req) {
+    const cart = await this.cacheManager.get<any[]>(`${req.user.sub}`);
+    if (!cart) {
+      return [];
+    }
+    let products: Product[] = [];
+    let total = 0;
+    for (const product of cart) {
+      const target = await this.productRepository.findOne({
+        where: { id: product.productID },
+      });
+      if (!target) throw new NotFoundException(`Product not found.`);
+      else {
+        total += target.price * product.quantity;
+        products.push(target);
+      }
+    }
+    return { products, total };
+  }
+
   async addCart(data, req) {
     const productIds = data.items.map((item) => item.productID);
 
