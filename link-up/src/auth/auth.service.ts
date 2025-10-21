@@ -5,24 +5,24 @@ import {
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from 'src/entity/user';
+import { UserEntity } from '../entity/user';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
-export class AuthService {
+export class AuthService { 
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly jwtService: JwtService,
-  ) {}
+  ) {} 
 
   async register(data: RegisterDto): Promise<{ msg: string }> {
     const user = await this.userRepository.findOne({
-      where: { username: data.username },
+      where: [{username:data.username},{email:data.email}],
     });
-    if (user) throw new ConflictException('Username already taken');
+    if (user) throw new ConflictException('Username or email already taken');
     const saltOrRounds = 16;
     const hash = await bcrypt.hash(data.password, saltOrRounds);
     await this.userRepository.save({ username: data.username, password: hash });
@@ -31,7 +31,7 @@ export class AuthService {
 
   async login(data: RegisterDto) {
     const user = await this.userRepository.findOne({
-      where: { username: data.username },
+      where: [{username:data.username},{email:data.email}],
     });
     if (!user) throw new NotFoundException('Invalid username or password');
     const isMatch = await bcrypt.compare(data.password, user.password);
