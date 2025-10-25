@@ -11,16 +11,16 @@ import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
-export class AuthService { 
+export class AuthService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly jwtService: JwtService,
-  ) {} 
+  ) {}
 
   async register(data: RegisterDto): Promise<{ msg: string }> {
     const user = await this.userRepository.findOne({
-      where: [{username:data.username},{email:data.email}],
+      where: [{ username: data.username }, { email: data.email }],
     });
     if (user) throw new ConflictException('Username or email already taken');
     const saltOrRounds = 16;
@@ -31,7 +31,7 @@ export class AuthService {
 
   async login(data: RegisterDto) {
     const user = await this.userRepository.findOne({
-      where: [{username:data.username},{email:data.email}],
+      where: [{ username: data.username }, { email: data.email }],
     });
     if (!user) throw new NotFoundException('Invalid username or password');
     const isMatch = await bcrypt.compare(data.password, user.password);
