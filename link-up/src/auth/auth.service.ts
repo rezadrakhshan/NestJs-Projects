@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Inject,
   NotFoundException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
@@ -9,6 +10,9 @@ import { UserEntity } from '../entity/user';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -16,7 +20,16 @@ export class AuthService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly jwtService: JwtService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly mailService: MailService,
   ) {}
+
+  async sendCode(email: string) {
+    const code = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+    await this.cacheManager.set(`${email}`, code);
+    await this.mailService.sendMail(email, String(code));
+    return { msg: 'Code Sent' };
+  }
 
   async register(data: RegisterDto): Promise<{ msg: string }> {
     const user = await this.userRepository.findOne({

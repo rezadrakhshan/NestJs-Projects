@@ -5,8 +5,8 @@ import { BaseEntity } from './base';
 export class UserEntity extends BaseEntity {
   @Column({ unique: true })
   username: string;
-  @Column({unique:true})
-  email:string
+  @Column({ unique: true })
+  email: string;
   @Column({ nullable: true })
   avatarUrl: string;
   @Column()

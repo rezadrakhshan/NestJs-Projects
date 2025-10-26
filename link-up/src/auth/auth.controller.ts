@@ -12,6 +12,11 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('send-code')
+  async send_code(@Body('email') email: string) {
+    return this.authService.sendCode(email);
+  }
+
   @Post('register')
   @UsePipes(new ValidationPipe())
   async register(@Body() data: RegisterDto): Promise<{ msg: string }> {
