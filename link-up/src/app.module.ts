@@ -16,8 +16,8 @@ import * as redisStore from 'cache-manager-redis-store';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME,
-      entities: [UserEntity],
-      synchronize: false,
+      synchronize: true,
+      autoLoadEntities: true,
     }),
     CacheModule.register({
       isGlobal: true,

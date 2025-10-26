@@ -3,6 +3,7 @@ import {
   Injectable,
   Inject,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -36,6 +37,10 @@ export class AuthService {
       where: [{ username: data.username }, { email: data.email }],
     });
     if (user) throw new ConflictException('Username or email already taken');
+    const codeIsValid = await this.cacheManager.get(`${data.email}`);
+    if (codeIsValid != data.code)
+      throw new BadRequestException('Invalid request type for code sending.');
+    await this.cacheManager.del(`${data.email}`);
     const saltOrRounds = 16;
     const hash = await bcrypt.hash(data.password, saltOrRounds);
     await this.userRepository.save({ username: data.username, password: hash });
