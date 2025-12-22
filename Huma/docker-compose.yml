@@ -6,7 +6,7 @@ services:
     container_name: huma-postgres
     environment:
       POSTGRES_USER: huma
-      POSTGRES_PASSWROD: huma_pass
+      POSTGRES_PASSWORD: huma_pass
       POSTGRES_DB: humadb
     ports:
       - '5432:5432'
@@ -14,7 +14,7 @@ services:
       - pgdata:/var/lib/postgresql/data
     restart: always
   
-  resis:
+  redis:
     image: redis:7
     container_name: huma_redis
     ports:
