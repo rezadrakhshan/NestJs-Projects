@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { DriverSignUpDto } from 'src/dtos/driver.dto';
+import { DriverRequestOtpDto } from 'src/dtos/driver.dto';
 import { MainServiceClient } from 'src/services/main.service';
 
 @Injectable()
 export class DriverAuthService {
   constructor(private readonly mainSrcCli: MainServiceClient) {}
 
-  async signUp(body: DriverSignUpDto) {
+  async requestOtp(body: DriverRequestOtpDto) {
     const data = await this.mainSrcCli.callAction({
       provider: 'DRIVERS',
-      action: 'signUp',
+      action: 'requestOtp',
       query: body,
     });
     return data;
