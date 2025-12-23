@@ -12,7 +12,7 @@ export class ServiceController {
       const res = await this.actions.findAndCall(data);
       return {
         context: data,
-        status: 'SUCEED',
+        status: 'SUCCEED',
         code: 200,
         message: res.messsage || 'Ok',
         error: null,
