@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Sequelize } from 'sequelize-typescript';
 import { ConfigService } from '@nestjs/config';
+import * as models from './models';
 
 @Injectable()
 export class PostgreService implements OnModuleInit {
@@ -13,7 +14,7 @@ export class PostgreService implements OnModuleInit {
       this.logger.log('Trying to connect to Postgresql');
       const dbConfig = this.configService.get('Database');
 
-      this.connection = new Sequelize({
+      const sequelizeInstance = new Sequelize({
         dialect: dbConfig.dialect,
         host: dbConfig.host,
         port: dbConfig.port,
@@ -23,11 +24,24 @@ export class PostgreService implements OnModuleInit {
         logging: false,
       });
 
-      await this.connection.authenticate();
+      sequelizeInstance.addModels(Object.values(models));
+
+      models.Driver.hasOne(models.DriverSession, {
+        foreignKey: 'driverID',
+        as: 'session',
+      });
+      models.DriverSession.belongsTo(models.Driver, {
+        foreignKey: 'driverID',
+        as: 'driver',
+      });
+
+      await sequelizeInstance.sync({ alter: true });
+      this.connection = sequelizeInstance;
       this.logger.log('Connected to PostgreSql successfuly');
     } catch (error) {
       this.logger.error('Failed to Connect to PostgreSql', error);
       process.exit(1);
     }
   }
+  public models = models;
 }

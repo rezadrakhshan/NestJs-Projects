@@ -1,4 +1,5 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { PostgreService } from 'src/databases/postgres/postgres.service';
 import { RedisService } from 'src/databases/redis/redis.service';
 import {
   ServiceClientContextDto,
@@ -9,7 +10,10 @@ import {
 @Injectable()
 export class DriverService {
   private static readonly role = 'driver';
-  constructor(private readonly redis: RedisService) {}
+  constructor(
+    private readonly pg: PostgreService,
+    private readonly redis: RedisService,
+  ) {}
   async requestOtp({
     query,
   }: ServiceClientContextDto): Promise<ServiceResponseData> {
@@ -45,6 +49,16 @@ export class DriverService {
     if (savedOtp !== otp)
       throw new SrvError(HttpStatus.BAD_REQUEST, 'Invalid OTP');
     await this.redis.cacheCli.del(key);
+
+    let driver = await this.pg.models.Driver.findOne({ where: { phone } });
+    if (!driver) {
+      driver = await this.pg.models.Driver.create({ phone });
+    }
+
+    const newSession = await this.pg.models.DriverSession.create({
+      driverID: driver.id,
+      refreshExpiresAt: +new Date(),
+    });
 
     return {
       message: 'OTP verified successfuly',
