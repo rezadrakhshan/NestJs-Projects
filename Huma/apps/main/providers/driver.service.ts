@@ -32,4 +32,26 @@ export class DriverService {
       },
     };
   }
+
+  async verifyOtp({
+    query,
+  }: ServiceClientContextDto): Promise<ServiceResponseData> {
+    const { phone, otp } = query;
+    const key = `otp:${DriverService.role}:${phone}`;
+    const savedOtp = await this.redis.cacheCli.get(key);
+    if (!savedOtp)
+      throw new SrvError(HttpStatus.BAD_REQUEST, 'OTP not found or expired');
+
+    if (savedOtp !== otp)
+      throw new SrvError(HttpStatus.BAD_REQUEST, 'Invalid OTP');
+    await this.redis.cacheCli.del(key);
+
+    return {
+      message: 'OTP verified successfuly',
+      data: {
+        success: true,
+        phone,
+      },
+    };
+  }
 }
