@@ -6,6 +6,7 @@ import {
   ServiceResponseData,
   SrvError,
 } from 'src/services/dto';
+import { TokenService } from 'utils/handled/token.service';
 
 @Injectable()
 export class DriverService {
@@ -13,6 +14,7 @@ export class DriverService {
   constructor(
     private readonly pg: PostgreService,
     private readonly redis: RedisService,
+    private readonly tokenService: TokenService,
   ) {}
   async requestOtp({
     query,
@@ -60,11 +62,22 @@ export class DriverService {
       refreshExpiresAt: +new Date(),
     });
 
+    const access_token = this.tokenService.generateAccessToken({
+      driverID: driver.id,
+      sessionID: newSession.id,
+    });
+
+    await newSession.update({
+      refreshExpiresAt: access_token.payload.refreshExpiresAt,
+    });
+    await newSession.reload();
+
     return {
       message: 'OTP verified successfuly',
       data: {
         success: true,
         phone,
+        access_token,
       },
     };
   }
