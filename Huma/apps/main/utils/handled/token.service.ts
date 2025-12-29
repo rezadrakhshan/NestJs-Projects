@@ -50,7 +50,7 @@ export class TokenService {
       secret: this.configService.get<string>('Jwt.access.secret'),
       expiresIn: accessExpiresInSec,
     });
-
+ 
     return {
       name: 'auth_driver',
       ttl,
