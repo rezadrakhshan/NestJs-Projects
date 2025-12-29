@@ -40,7 +40,7 @@ export class TokenService {
     const ttl = refreshExpiresInSec * 1000;
 
     const payload = {
-      dif: params.driverID,
+      did: params.driverID,
       sid: params.sessionID,
       aea: accessExpiresAt,
       rea: refreshExpiresAt,
@@ -50,7 +50,7 @@ export class TokenService {
       secret: this.configService.get<string>('Jwt.access.secret'),
       expiresIn: accessExpiresInSec,
     });
- 
+
     return {
       name: 'auth_driver',
       ttl,
@@ -62,5 +62,13 @@ export class TokenService {
         refreshExpiresAt,
       },
     };
+  }
+
+  decode(token: string): any {
+    try {
+      return this.jwtService.decode(token);
+    } catch (error) {
+      return null;
+    }
   }
 }

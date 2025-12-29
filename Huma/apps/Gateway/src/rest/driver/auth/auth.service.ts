@@ -27,4 +27,15 @@ export class DriverAuthService {
     });
     return handleSrcCliResponse(data);
   }
+
+  async authorize(token: string) {
+    const data = await this.mainSrcCli.callAction({
+      provider: 'DRIVERS',
+      action: 'authorize',
+      query: {
+        token,
+      },
+    });
+    return handleSrcCliResponse(data);
+  }
 }

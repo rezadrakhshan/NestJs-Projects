@@ -5,6 +5,9 @@ import {
   UseFilters,
   UseInterceptors,
   Res,
+  Req,
+  Get,
+  UseGuards,
 } from '@nestjs/common';
 import { DriverAuthService } from './auth.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -14,7 +17,8 @@ import {
 } from 'src/dtos/driver.dto';
 import { HttpExceptionFilter } from 'src/response/http-exception.filter';
 import { ResponseInterceptor } from 'src/response/response-interceptors';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import { DriverAuthGuard } from './auth.guard';
 
 @ApiTags('Driver:Auth')
 @Controller('Auth')
@@ -36,7 +40,6 @@ export class DriverAuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.driverAuthService.verifyOtp(body);
-    console.log(result)
     const tokenData = result.access_token;
     res.cookie(tokenData.name, tokenData.token, {
       maxAge: tokenData.ttl,
@@ -48,5 +51,12 @@ export class DriverAuthController {
 
     delete result.access_token;
     return result;
+  }
+
+  @UseGuards(DriverAuthGuard)
+  @Get('profile')
+  @ApiOperation({ summary: 'Get driver profile' })
+  async getProfile(@Req() req) {
+    return req.driver;
   }
 }

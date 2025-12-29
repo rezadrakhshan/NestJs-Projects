@@ -7,10 +7,14 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AdminModule } from './rest/admin/admin.module';
 import { DriverModule } from './rest/driver/driver.module';
 import { PassengerModule } from './rest/passenger/passenger.module';
+import * as cookieParser from 'cookie-parser';
+
 
 async function bootstrap() {
   const server = express();
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+
+  app.use(cookieParser())
 
   const swaggerOptions = new DocumentBuilder()
     .setTitle('Huma')
